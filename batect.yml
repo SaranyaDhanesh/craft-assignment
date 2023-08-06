@@ -1,0 +1,20 @@
+containers:
+  mock-server:
+    image: wiremock/wiremock:2.35.0
+    ports:
+      - local: 9090
+        container: 8080
+    volumes:
+      - local: mock-server/resources/mappings
+        container: /home/wiremock/mappings
+        options: cached
+      - local: mock-server/resources/stub-responses
+        container: /home/wiremock/__files
+        options: cached
+    command: --global-response-templating --verbose --port=8080
+    additional_hostnames:
+      - mock-server
+tasks:
+  run-mock-server:
+    run:
+      container: mock-server

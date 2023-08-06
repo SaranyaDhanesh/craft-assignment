@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/v1/quickbooks/validate",
+    "headers": {
+      "content-type": {
+        "contains": "application/json"
+      }
+    }
+  },
+  "response": {
+    "status": 200
+  }
+}
