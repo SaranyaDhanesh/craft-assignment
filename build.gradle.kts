@@ -28,6 +28,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.183")
+    implementation("com.github.derjust:spring-data-dynamodb:5.1.0")
+
+
+
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

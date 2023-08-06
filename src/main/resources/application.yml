@@ -1,0 +1,13 @@
+amazon:
+  dynamodb:
+    endpoint: http://localhost:8000
+  aws:
+    accessKey: testcraftdemo
+    secretKey: testcraft
+    region: localhost
+spring:
+    data:
+      dynamodb:
+        entity2ddl:
+          auto: create
+
