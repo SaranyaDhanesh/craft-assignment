@@ -33,7 +33,7 @@ class UserProfileController(
             @RequestParam profileId: String
     ): ResponseEntity<UserProfileResponse>{
 
-        return ResponseEntity(userProfileService.getUserProfile(subscriberId = UUID.fromString(profileId)), HttpStatus.OK)
+        return ResponseEntity(userProfileService.getUserProfile(userProfileId = UUID.fromString(profileId)), HttpStatus.OK)
 
     }
 

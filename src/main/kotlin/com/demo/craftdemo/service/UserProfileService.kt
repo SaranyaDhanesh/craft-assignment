@@ -38,13 +38,12 @@ class UserProfileService(
             userProfileRepository.save(subscriber)
 
         }.onFailure {exception ->
-            logger.info("Subscriber create profile failed")
-            throw IllegalStateException(exception.message!!)
+            logger.error("User profile creation failed")
         }.getOrThrow()
 
         savedUserProfile.userProfileId?.let {
             return CreateProfileResponse(userProfileId = it)
-        } ?: throw IllegalStateException("Subscriber user id is not present")
+        } ?: throw IllegalStateException("User profile id is not present")
 
     }
 
@@ -60,13 +59,11 @@ class UserProfileService(
             userProfileRepository.save(subscriber)
 
         }.onFailure {exception ->
-            logger.info("Subscriber create profile failed")
+            logger.error("User profile update failed")
             throw IllegalStateException(exception.message!!)
         }.getOrThrow()
 
-        updatedUserProfile.userProfileId?.let {
-            return CreateProfileResponse(userProfileId = it)
-        } ?: throw IllegalStateException("Subscriber user id is not present")
+        return CreateProfileResponse(userProfileId = profileId)
 
     }
 
@@ -76,7 +73,8 @@ class UserProfileService(
 
         val subscribedProducts = subscriptionRepository.findByUserId(createProfileRequest.userId)
         if (subscribedProducts.isEmpty()) {
-            logger.info("User dont have any subscription")
+            logger.error("User dont have any subscription")
+            throw BadRequestException("User dont have any subscription")
         } else {
             val products = subscribedProducts.map { subscribedProduct ->
                 productRepository.findById(subscribedProduct.productId!!).getOrElse {
@@ -88,14 +86,14 @@ class UserProfileService(
     }
 
 
-    fun getUserProfile(subscriberId: UUID): UserProfileResponse {
-        val subscriber = userProfileRepository.findById(subscriberId)
+    fun getUserProfile(userProfileId: UUID): UserProfileResponse {
+        val userProfile = userProfileRepository.findById(userProfileId)
 
-        if(subscriber.getOrNull() == null){
-            throw BadRequestException("Subscriber not found with given subscriber id")
+        if(userProfile.getOrNull() == null){
+            throw BadRequestException("Profile not found with given profile id")
         }
 
-        return DomainModelMapper.convertToProfileResponse(subscriber.get())
+        return DomainModelMapper.convertToProfileResponse(userProfile.get())
 
     }
 
@@ -105,7 +103,7 @@ class UserProfileService(
        runCatching {
            productSubscriptionAdapter.validateProfileByProduct(validateProfileRequest, productNames)
        }.onFailure {
-           logger.info("Validation request failed")
+           logger.error("Product validation request failed")
        }.getOrThrow()
 
     }
