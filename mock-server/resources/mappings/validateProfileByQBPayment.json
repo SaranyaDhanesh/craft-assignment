@@ -1,14 +1,41 @@
 {
-  "request": {
-    "method": "POST",
-    "url": "/v1/quickbooks/payment/validate",
-    "headers": {
-      "content-type": {
-        "contains": "application/json"
+  "mappings": [
+    {
+      "scenarioName": "QB Payments validation with success response",
+      "priority": 2,
+      "request": {
+        "method": "POST",
+        "url": "/v1/qbpayments/validate",
+        "headers": {
+          "content-type": {
+            "contains": "application/json"
+          }
+        }
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "scenarioName": "QB Payments validation with failure response",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "url": "/v1/qbpayments/validate",
+        "headers": {
+          "content-type": {
+            "contains": "application/json"
+          }
+        },
+        "bodyPatterns" : [ {
+          "equalToJson" : "{ \"companyName\": \"testqbpayment\"  }",
+          "ignoreArrayOrder" : true,
+          "ignoreExtraElements" : true
+        } ]
+      },
+      "response": {
+        "status": 400
       }
     }
-  },
-  "response": {
-    "status": 200
-  }
+  ]
 }

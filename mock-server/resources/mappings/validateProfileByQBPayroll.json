@@ -1,14 +1,41 @@
 {
-  "request": {
-    "method": "POST",
-    "url": "/v1/quickbooks/payroll/validate",
-    "headers": {
-      "content-type": {
-        "contains": "application/json"
+  "mappings": [
+    {
+      "scenarioName": "QB Payroll validation with success response",
+      "priority": 2,
+      "request": {
+        "method": "POST",
+        "url": "/v1/qbpayroll/validate",
+        "headers": {
+          "content-type": {
+            "contains": "application/json"
+          }
+        }
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "scenarioName": "QB Payroll validation with failure response",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "url": "/v1/qbpayroll/validate",
+        "headers": {
+          "content-type": {
+            "contains": "application/json"
+          }
+        },
+        "bodyPatterns" : [ {
+          "equalToJson" : "{ \"companyName\": \"testqbpayroll\"  }",
+          "ignoreArrayOrder" : true,
+          "ignoreExtraElements" : true
+        } ]
+      },
+      "response": {
+        "status": 400
       }
     }
-  },
-  "response": {
-    "status": 200
-  }
+  ]
 }

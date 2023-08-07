@@ -1,14 +1,41 @@
 {
-  "request": {
-    "method": "POST",
-    "url": "/v1/tsheets/validate",
-    "headers": {
-      "content-type": {
-        "contains": "application/json"
+  "mappings": [
+    {
+      "scenarioName": "TSheets validation with success response",
+      "priority": 2,
+      "request": {
+        "method": "POST",
+        "url": "/v1/tsheets/validate",
+        "headers": {
+          "content-type": {
+            "contains": "application/json"
+          }
+        }
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "scenarioName": "TSheets validation with failure response",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "url": "/v1/tsheets/validate",
+        "headers": {
+          "content-type": {
+            "contains": "application/json"
+          }
+        },
+        "bodyPatterns" : [ {
+          "equalToJson" : "{ \"companyName\": \"testtsheets\"  }",
+          "ignoreArrayOrder" : true,
+          "ignoreExtraElements" : true
+        } ]
+      },
+      "response": {
+        "status": 400
       }
     }
-  },
-  "response": {
-    "status": 200
-  }
+  ]
 }

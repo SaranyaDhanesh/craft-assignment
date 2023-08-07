@@ -1,14 +1,41 @@
 {
-  "request": {
-    "method": "POST",
-    "url": "/v1/quickbooks/validate",
-    "headers": {
-      "content-type": {
-        "contains": "application/json"
+  "mappings": [
+    {
+      "scenarioName": "Quickbooks validation with success response",
+      "priority": 2,
+      "request": {
+        "method": "POST",
+        "url": "/v1/quickbooks/validate",
+        "headers": {
+          "content-type": {
+            "contains": "application/json"
+          }
+        }
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "scenarioName": "Quickbooks validation with failure response",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "url": "/v1/quickbooks/validate",
+        "headers": {
+          "content-type": {
+            "contains": "application/json"
+          }
+        },
+        "bodyPatterns" : [ {
+          "equalToJson" : "{ \"companyName\": \"testqb\"  }",
+          "ignoreArrayOrder" : true,
+          "ignoreExtraElements" : true
+        } ]
+      },
+      "response": {
+        "status": 400
       }
     }
-  },
-  "response": {
-    "status": 200
-  }
+  ]
 }
