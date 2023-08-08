@@ -30,8 +30,6 @@ class ExceptionHandler {
     fun onHttpMessageNotReadableException(
             exception: HttpMessageNotReadableException
     ): ResponseEntity<ErrorResponse> {
-        logger.info(exception.rootCause?.stackTraceToString())
-        logger.info(exception.rootCause?.message)
         logger.info("On http message not readable exception")
         val errorResponse = when (exception.rootCause){
             is MissingKotlinParameterException -> {

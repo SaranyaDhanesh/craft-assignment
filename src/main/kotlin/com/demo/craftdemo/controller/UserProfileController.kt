@@ -30,10 +30,10 @@ class UserProfileController(
 
     @GetMapping("api/v1/user/profile")
     fun getUserProfileDetails(
-            @RequestParam profileId: String
+            @RequestParam id: String
     ): ResponseEntity<UserProfileResponse>{
 
-        return ResponseEntity(userProfileService.getUserProfile(userProfileId = UUID.fromString(profileId)), HttpStatus.OK)
+        return ResponseEntity(userProfileService.getUserProfile(userProfileId = UUID.fromString(id)), HttpStatus.OK)
 
     }
 

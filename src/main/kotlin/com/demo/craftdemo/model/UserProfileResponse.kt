@@ -4,7 +4,7 @@ import java.util.UUID
 
 data class UserProfileResponse(
 
-        val subscriberId: UUID?,
+        val userProfileId: UUID?,
 
         val companyName: String?,
 

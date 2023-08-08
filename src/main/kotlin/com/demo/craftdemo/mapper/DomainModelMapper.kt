@@ -50,7 +50,7 @@ object DomainModelMapper {
 
     fun convertToProfileResponse(user: UserProfile) =
             UserProfileResponse(
-                    subscriberId = user.userProfileId,
+                    userProfileId = user.userProfileId,
                     companyName = user.getCompanyName(),
                     legalName = user.getLegalName(),
                     website = user.getWebsite(),
