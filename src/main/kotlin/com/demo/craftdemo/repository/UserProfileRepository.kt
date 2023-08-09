@@ -10,4 +10,6 @@ import java.util.UUID
 @EnableScan
 @EnableScanCount
 interface UserProfileRepository : DynamoDBCrudRepository<UserProfile, UUID>{
+
+    fun findByUserId(userId: UUID): UserProfile?
 }

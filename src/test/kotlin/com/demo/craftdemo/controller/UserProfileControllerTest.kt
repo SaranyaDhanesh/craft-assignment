@@ -58,15 +58,14 @@ class UserProfileControllerTest : DescribeSpec({
     describe("updateUserProfile"){
         it("should update user profile"){
 
-            val profileId = UUID.randomUUID()
             val mockCreateProfileRequest = mockk<CreateProfileRequest>()
             val mockCreateProfileResponse = mockk<CreateProfileResponse>()
 
             every {
-                mockUserProfileService.updateUserProfile(mockCreateProfileRequest, profileId)
+                mockUserProfileService.updateUserProfile(mockCreateProfileRequest)
             } returns mockCreateProfileResponse
 
-            val actualResponse = userProfileController.updateUserProfile(profileId, mockCreateProfileRequest)
+            val actualResponse = userProfileController.updateUserProfile( mockCreateProfileRequest)
 
             actualResponse.statusCode.shouldBe(HttpStatus.OK)
             actualResponse.body.shouldBe(mockCreateProfileResponse)

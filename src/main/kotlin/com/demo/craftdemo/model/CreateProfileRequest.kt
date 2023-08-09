@@ -11,6 +11,8 @@ import java.util.UUID
 
 data class CreateProfileRequest(
 
+        val userProfileId: UUID? = null,
+
         val userId: UUID,
 
         val companyName: String,

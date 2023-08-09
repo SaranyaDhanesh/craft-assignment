@@ -39,11 +39,10 @@ class UserProfileController(
 
     @PutMapping("api/v1/user/profile")
     fun updateUserProfile(
-            @RequestParam id: UUID,
             @RequestBody createProfileRequest: CreateProfileRequest
     ): ResponseEntity<CreateProfileResponse>{
 
-        return ResponseEntity(userProfileService.updateUserProfile(createProfileRequest, id), HttpStatus.OK)
+        return ResponseEntity(userProfileService.updateUserProfile(createProfileRequest), HttpStatus.OK)
 
     }
 

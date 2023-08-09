@@ -32,12 +32,17 @@ class UserProfileService(
     fun createProfile(createProfileRequest: CreateProfileRequest): CreateProfileResponse {
         val savedUserProfile = runCatching {
 
-            validateUserAndSubscribedProducts(createProfileRequest)
+            userProfileRepository.findByUserId(createProfileRequest.userId)?.let {
+                throw BadRequestException("Profile already present for given user")
+            }
+
+            validateUser(createProfileRequest)
+            validateSubscribedProducts(createProfileRequest)
 
             val subscriber = DomainModelMapper.convertToUserProfileEntity(createProfileRequest)
             userProfileRepository.save(subscriber)
 
-        }.onFailure {exception ->
+        }.onFailure {
             logger.error("User profile creation failed")
         }.getOrThrow()
 
@@ -47,30 +52,28 @@ class UserProfileService(
 
     }
 
-    fun updateUserProfile(createProfileRequest: CreateProfileRequest, profileId: UUID): CreateProfileResponse {
-        val updatedUserProfile = runCatching {
+    fun updateUserProfile(createProfileRequest: CreateProfileRequest): CreateProfileResponse {
+         runCatching {
 
-            val userProfile = userProfileRepository.findById(profileId).getOrNull()
+            val userProfileId = createProfileRequest.userProfileId
+                    ?: throw BadRequestException("User profile id should be present")
+            val userProfile = userProfileRepository.findById(userProfileId).getOrNull()
                 ?: throw BadRequestException("User profile not found")
 
-            validateUserAndSubscribedProducts(createProfileRequest)
+            validateSubscribedProducts(createProfileRequest)
 
             val subscriber = DomainModelMapper.updateUserProfileEntity(createProfileRequest, userProfile)
             userProfileRepository.save(subscriber)
 
-        }.onFailure {exception ->
+        }.onFailure {
             logger.error("User profile update failed")
-            throw IllegalStateException(exception.message!!)
         }.getOrThrow()
 
-        return CreateProfileResponse(userProfileId = profileId)
+        return CreateProfileResponse(userProfileId = createProfileRequest.userProfileId!!)
 
     }
 
-    private fun validateUserAndSubscribedProducts(createProfileRequest: CreateProfileRequest) {
-        val user = userRepository.findById(createProfileRequest.userId)
-        user.getOrNull() ?: throw BadRequestException("User with given userId not found")
-
+    private fun validateSubscribedProducts(createProfileRequest: CreateProfileRequest) {
         val subscribedProducts = subscriptionRepository.findByUserId(createProfileRequest.userId)
         if (subscribedProducts.isEmpty()) {
             logger.error("User dont have any subscription")
@@ -83,6 +86,11 @@ class UserProfileService(
             }
             validateProfileBySubscribedProducts(createProfileRequest, products)
         }
+    }
+
+    private fun validateUser(createProfileRequest: CreateProfileRequest) {
+        val user = userRepository.findById(createProfileRequest.userId)
+        user.getOrNull() ?: throw BadRequestException("User with given userId not found")
     }
 
 

@@ -18,7 +18,6 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.*
-import org.mockito.Mockito.mock
 import java.util.*
 
 class UserProfileServiceTest : DescribeSpec({
@@ -108,6 +107,7 @@ class UserProfileServiceTest : DescribeSpec({
                         listOf(firstProductName, secondProductName)
                     )
             } just runs
+            every { mockUserProfileRepository.findByUserId(userId) } returns null
             every { mockUserProfileRepository.save(any()) } returns UserProfile(userProfileId = userProfileId)
 
             val actualResponse = userProfileService.createProfile(createProfileRequest)
@@ -134,6 +134,7 @@ class UserProfileServiceTest : DescribeSpec({
                         listOf(firstProductName, secondProductName)
                 )
             } just runs
+            every { mockUserProfileRepository.findByUserId(userId) } returns null
             every { mockUserProfileRepository.save(any()) } throws expectedException
 
             val actualException = shouldThrow<IllegalStateException> {
@@ -163,6 +164,7 @@ class UserProfileServiceTest : DescribeSpec({
                         listOf(firstProductName, secondProductName)
                 )
             } just runs
+            every { mockUserProfileRepository.findByUserId(userId) } returns null
             every { mockUserProfileRepository.save(any()) } returns UserProfile()
 
             val actualException = shouldThrow<IllegalStateException> {
@@ -178,9 +180,25 @@ class UserProfileServiceTest : DescribeSpec({
 
             val expectedException = BadRequestException("User with given userId not found")
 
+            every { mockUserProfileRepository.findByUserId(userId) } returns null
             every {
                 mockUserRepository.findById(userId)
             } returns Optional.empty()
+
+            val actualException = shouldThrow<BadRequestException> {
+                userProfileService.createProfile(createProfileRequest)
+            }
+
+            actualException.shouldBe(expectedException)
+
+
+        }
+
+        it("should throw exception when userprofile is present"){
+
+            val expectedException = BadRequestException("Profile already present for given user")
+
+            every { mockUserProfileRepository.findByUserId(userId) } returns UserProfile()
 
             val actualException = shouldThrow<BadRequestException> {
                 userProfileService.createProfile(createProfileRequest)
@@ -201,6 +219,7 @@ class UserProfileServiceTest : DescribeSpec({
             every {
                 mockSubscriptionRepository.findByUserId(userId)
             } returns listOf()
+            every { mockUserProfileRepository.findByUserId(userId) } returns null
 
             val actualException = shouldThrow<BadRequestException> {
                 userProfileService.createProfile(createProfileRequest)
@@ -228,6 +247,7 @@ class UserProfileServiceTest : DescribeSpec({
                         listOf(firstProductName, secondProductName)
                 )
             } just runs
+            every { mockUserProfileRepository.findByUserId(userId) } returns null
 
             val actualException = shouldThrow<BadRequestException> {
                 userProfileService.createProfile(createProfileRequest)
@@ -256,6 +276,7 @@ class UserProfileServiceTest : DescribeSpec({
                         listOf(firstProductName, secondProductName)
                 )
             } throws expectedException
+            every { mockUserProfileRepository.findByUserId(userId) } returns null
 
             val actualException = shouldThrow<Exception> {
                 userProfileService.createProfile(createProfileRequest)
@@ -332,7 +353,7 @@ class UserProfileServiceTest : DescribeSpec({
                 zip = "12345",
                 country = "testCountry"
         )
-        val createProfileRequest = CreateProfileRequest(
+        val updateProfileRequest = CreateProfileRequest(
                 userId = userId,
                 companyName = "updatedCompanyName",
                 legalName = "updatedLegalName",
@@ -340,7 +361,8 @@ class UserProfileServiceTest : DescribeSpec({
                 email = "updatedtest@gmail.com",
                 companyAddress = address,
                 legalAddress = address,
-                website = "http://localhost:8080"
+                website = "http://localhost:8080",
+                userProfileId = userProfileId
         )
         val user = User(
                 userId = userId,
@@ -400,13 +422,13 @@ class UserProfileServiceTest : DescribeSpec({
             every { mockProductRepository.findById(secondProductId) } returns Optional.of(secondProduct)
             every {
                 mockProductSubscriptionAdapter.validateProfileByProduct(
-                        createProfileRequest.toValidateProfileRequest(),
+                        updateProfileRequest.toValidateProfileRequest(),
                         listOf(firstProductName, secondProductName)
                 )
             } just runs
             every { mockUserProfileRepository.save(any()) } returns UserProfile(userProfileId = userProfileId)
 
-            val actualResponse = userProfileService.updateUserProfile(createProfileRequest, userProfileId)
+            val actualResponse = userProfileService.updateUserProfile(updateProfileRequest)
 
             actualResponse.shouldNotBeNull()
             actualResponse.userProfileId.shouldNotBeNull()
@@ -414,7 +436,7 @@ class UserProfileServiceTest : DescribeSpec({
 
         it("should throw exception when user profile save fails"){
 
-            val expectedException = IllegalStateException("Failed")
+            val expectedException = Exception("Failed")
 
             every {
                 mockUserRepository.findById(userId)
@@ -427,14 +449,14 @@ class UserProfileServiceTest : DescribeSpec({
             every { mockProductRepository.findById(secondProductId) } returns Optional.of(secondProduct)
             every {
                 mockProductSubscriptionAdapter.validateProfileByProduct(
-                        createProfileRequest.toValidateProfileRequest(),
+                        updateProfileRequest.toValidateProfileRequest(),
                         listOf(firstProductName, secondProductName)
                 )
             } just runs
-            every { mockUserProfileRepository.save(any()) } throws Exception("Failed")
+            every { mockUserProfileRepository.save(any()) } throws expectedException
 
-            val actualException = shouldThrow<IllegalStateException> {
-                userProfileService.updateUserProfile(createProfileRequest, userProfileId)
+            val actualException = shouldThrow<Exception> {
+                userProfileService.updateUserProfile(updateProfileRequest)
             }
 
             actualException.shouldBe(expectedException)
@@ -444,14 +466,37 @@ class UserProfileServiceTest : DescribeSpec({
 
         it("should throw exception when user profile not found"){
 
-            val expectedException = IllegalStateException("User profile not found")
+            val expectedException = BadRequestException("User profile not found")
 
             every {
                 mockUserProfileRepository.findById(userProfileId)
             } returns Optional.empty()
 
-            val actualException = shouldThrow<IllegalStateException> {
-                userProfileService.updateUserProfile(createProfileRequest, userProfileId)
+            val actualException = shouldThrow<BadRequestException> {
+                userProfileService.updateUserProfile(updateProfileRequest)
+            }
+
+            actualException.shouldBe(expectedException)
+
+        }
+
+        it("should throw exception when user profile id not present"){
+
+            val updatedProfileRequest = CreateProfileRequest(
+                userId = userId,
+                companyName = "updatedCompanyName",
+                legalName = "updatedLegalName",
+                taxIdentifier = "XYZ",
+                email = "updatedtest@gmail.com",
+                companyAddress = address,
+                legalAddress = address,
+                website = "http://localhost:8080",
+        )
+
+            val expectedException = BadRequestException("User profile id should be present")
+
+            val actualException = shouldThrow<BadRequestException> {
+                userProfileService.updateUserProfile(updatedProfileRequest)
             }
 
             actualException.shouldBe(expectedException)
